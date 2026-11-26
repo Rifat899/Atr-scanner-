@@ -1,10 +1,9 @@
 import requests
 import json
 from datetime import datetime, timezone
+from conditions import check_conditions
 
 BINANCE_URL = "https://data-api.binance.vision/api/v3/klines"
-
-ATR_LENGTH = 14
 
 TIMEFRAMES = {
     "4H": "4h",
@@ -23,14 +22,12 @@ def get_candles(symbol, interval):
     response = requests.get(BINANCE_URL, params=params, timeout=20)
     response.raise_for_status()
 
-    candles = response.json()
-
     # Exclude the currently forming candle
-    return candles[:-1]
+    return response.json()[:-1]
 
 
-def calculate_atr(candles):
-    if len(candles) < ATR_LENGTH + 1:
+def calculate_atr(candles, length):
+    if len(candles) < length + 2:
         raise ValueError("Not enough candles")
 
     true_ranges = []
@@ -40,30 +37,43 @@ def calculate_atr(candles):
         low = float(candles[i][3])
         previous_close = float(candles[i - 1][4])
 
-        true_range = max(
+        tr = max(
             high - low,
             abs(high - previous_close),
             abs(low - previous_close)
         )
 
-        true_ranges.append(true_range)
+        true_ranges.append(tr)
 
-    # Initial ATR: average of first 14 true ranges
-    atr = sum(true_ranges[:ATR_LENGTH]) / ATR_LENGTH
+    # Initial ATR
+    atr = sum(true_ranges[:length]) / length
+    atr_values = [atr]
 
     # Wilder's RMA
-    for tr in true_ranges[ATR_LENGTH:]:
-        atr = ((atr * (ATR_LENGTH - 1)) + tr) / ATR_LENGTH
+    for tr in true_ranges[length:]:
+        atr = ((atr * (length - 1)) + tr) / length
+        atr_values.append(atr)
 
-    close = float(candles[-1][4])
-    atr_percent = (atr / close) * 100
+    current_atr = atr_values[-1]
+    previous_atr = atr_values[-2]
 
-    return atr, atr_percent, close
+    current_close = float(candles[-1][4])
+    previous_close = float(candles[-2][4])
+
+    current_percent = current_atr / current_close * 100
+    previous_percent = previous_atr / previous_close * 100
+
+    return current_atr, current_percent, previous_percent, current_close
 
 
 def main():
     with open("watchlist.json", "r") as file:
         watchlist = json.load(file)
+
+    with open("settings.json", "r") as file:
+        settings = json.load(file)
+
+    length = settings["atr_length"]
 
     symbols = [
         token["symbol"]
@@ -71,7 +81,7 @@ def main():
         if token["enabled"]
     ]
 
-    print("ATR% SCANNER TEST")
+    print("ATR% SCANNER")
     print("Time:", datetime.now(timezone.utc).isoformat())
 
     for symbol in symbols:
@@ -79,13 +89,23 @@ def main():
 
         for label, interval in TIMEFRAMES.items():
             try:
-                candles = get_candles(symbol, interval)
-                atr, atr_percent, close = calculate_atr(candles)
+                atr, current, previous, price = calculate_atr(
+                    get_candles(symbol, interval),
+                    length
+                )
+
+                triggered = check_conditions(
+                    current,
+                    previous,
+                    settings["conditions"][label]
+                )
+
+                condition_text = ",".join(triggered) if triggered else "-"
 
                 print(
-                    f"{label}: ATR={atr:.6f} | "
-                    f"ATR%={atr_percent:.4f}% | "
-                    f"Price=${close:,.4f}"
+                    f"{label}: {current:.4f}% "
+                    f"| Price=${price:,.4f} "
+                    f"| Conditions: {condition_text}"
                 )
 
             except Exception as error:
