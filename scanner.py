@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import datetime, timezone
 from conditions import check_conditions
+from alert_manager import load_state, save_state, get_new_triggers
 
 BINANCE_URL = "https://data-api.binance.vision/api/v3/klines"
 
@@ -22,7 +23,6 @@ def get_candles(symbol, interval):
     response = requests.get(BINANCE_URL, params=params, timeout=20)
     response.raise_for_status()
 
-    # Exclude the currently forming candle
     return response.json()[:-1]
 
 
@@ -45,11 +45,9 @@ def calculate_atr(candles, length):
 
         true_ranges.append(tr)
 
-    # Initial ATR
     atr = sum(true_ranges[:length]) / length
     atr_values = [atr]
 
-    # Wilder's RMA
     for tr in true_ranges[length:]:
         atr = ((atr * (length - 1)) + tr) / length
         atr_values.append(atr)
@@ -63,7 +61,7 @@ def calculate_atr(candles, length):
     current_percent = current_atr / current_close * 100
     previous_percent = previous_atr / previous_close * 100
 
-    return current_atr, current_percent, previous_percent, current_close
+    return current_percent, previous_percent, current_close
 
 
 def main():
@@ -73,6 +71,7 @@ def main():
     with open("settings.json", "r") as file:
         settings = json.load(file)
 
+    state = load_state()
     length = settings["atr_length"]
 
     symbols = [
@@ -81,15 +80,21 @@ def main():
         if token["enabled"]
     ]
 
+    alert_blocks = []
+
     print("ATR% SCANNER")
     print("Time:", datetime.now(timezone.utc).isoformat())
 
     for symbol in symbols:
+        results = {}
+        new_alerts = {}
+        price = None
+
         print(f"\n{symbol}")
 
         for label, interval in TIMEFRAMES.items():
             try:
-                atr, current, previous, price = calculate_atr(
+                current, previous, close = calculate_atr(
                     get_candles(symbol, interval),
                     length
                 )
@@ -100,16 +105,52 @@ def main():
                     settings["conditions"][label]
                 )
 
+                new_triggers = get_new_triggers(
+                    symbol,
+                    label,
+                    triggered,
+                    state
+                )
+
+                results[label] = current
+                new_alerts[label] = new_triggers
+
+                if label == "4H":
+                    price = close
+
                 condition_text = ",".join(triggered) if triggered else "-"
 
                 print(
                     f"{label}: {current:.4f}% "
-                    f"| Price=${price:,.4f} "
+                    f"| Price=${close:,.4f} "
                     f"| Conditions: {condition_text}"
                 )
 
             except Exception as error:
                 print(f"{label}: ERROR - {error}")
+
+        if any(new_alerts.get(label) for label in TIMEFRAMES):
+            lines = [f"{symbol} | ${price:,.4f}"]
+
+            for label in TIMEFRAMES:
+                if label in results:
+                    conditions = new_alerts.get(label, [])
+                    condition_text = ",".join(conditions) if conditions else "-"
+
+                    lines.append(
+                        f"{label}: {results[label]:.2f}% [{condition_text}]"
+                    )
+
+            alert_blocks.append("\n".join(lines))
+
+    save_state(state)
+
+    print("\nNEW ALERTS")
+
+    if alert_blocks:
+        print("\n\n".join(alert_blocks))
+    else:
+        print("No new alerts")
 
 
 if __name__ == "__main__":
