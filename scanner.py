@@ -92,10 +92,13 @@ def send_telegram(message):
         timeout=20
     )
 
-    response.raise_for_status()
+    print("Telegram HTTP status:", response.status_code)
+print("Telegram response:", response.text)
 
-    if not response.json().get("ok"):
-        raise RuntimeError("Telegram message was not accepted")
+response.raise_for_status()
+
+if not response.json().get("ok"):
+    raise RuntimeError("Telegram message was not accepted")
 
 
 def main():
