@@ -1,0 +1,36 @@
+name: Telegram Bot Control
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  control:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get repository files
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requirements
+        run: pip install requests
+
+      - name: Run Telegram bot control
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python bot_control.py
+
+      - name: Save settings and command position
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add settings.json bot_update_offset.json
+          git diff --cached --quiet || git commit -m "Update Telegram bot settings"
+          git push
