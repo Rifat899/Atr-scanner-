@@ -1,1 +1,26 @@
-{}
+{
+  "BTCUSDT_4H_C1": false,
+  "BTCUSDT_4H_C2": false,
+  "BTCUSDT_4H_C3": false,
+  "BTCUSDT_4H_C4": false,
+  "BTCUSDT_1D_C1": false,
+  "BTCUSDT_1D_C2": false,
+  "BTCUSDT_1D_C3": false,
+  "BTCUSDT_1D_C4": false,
+  "BTCUSDT_1W_C1": false,
+  "BTCUSDT_1W_C2": false,
+  "BTCUSDT_1W_C3": false,
+  "BTCUSDT_1W_C4": false,
+  "ETHUSDT_4H_C1": false,
+  "ETHUSDT_4H_C2": false,
+  "ETHUSDT_4H_C3": false,
+  "ETHUSDT_4H_C4": false,
+  "ETHUSDT_1D_C1": false,
+  "ETHUSDT_1D_C2": false,
+  "ETHUSDT_1D_C3": false,
+  "ETHUSDT_1D_C4": false,
+  "ETHUSDT_1W_C1": false,
+  "ETHUSDT_1W_C2": false,
+  "ETHUSDT_1W_C3": false,
+  "ETHUSDT_1W_C4": false
+}
