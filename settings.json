@@ -1,0 +1,23 @@
+{
+  "atr_length": 14,
+  "conditions": {
+    "4H": {
+      "C1": {"enabled": false, "threshold": 0.5},
+      "C2": {"enabled": false, "threshold": 3.0},
+      "C3": {"enabled": false, "threshold": 0.5},
+      "C4": {"enabled": false, "threshold": 0.5}
+    },
+    "1D": {
+      "C1": {"enabled": false, "threshold": 0.5},
+      "C2": {"enabled": false, "threshold": 5.0},
+      "C3": {"enabled": false, "threshold": 0.5},
+      "C4": {"enabled": false, "threshold": 0.5}
+    },
+    "1W": {
+      "C1": {"enabled": false, "threshold": 0.5},
+      "C2": {"enabled": false, "threshold": 8.0},
+      "C3": {"enabled": false, "threshold": 0.5},
+      "C4": {"enabled": false, "threshold": 0.5}
+    }
+  }
+}
