@@ -1,0 +1,12 @@
+{
+  "tokens": [
+    {
+      "symbol": "BTCUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "enabled": true
+    }
+  ]
+}
