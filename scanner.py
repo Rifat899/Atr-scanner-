@@ -3,7 +3,16 @@ from datetime import datetime, timezone
 
 BINANCE_URL = "https://data-api.binance.vision/api/v3/klines"
 
-SYMBOLS = ["BTCUSDT", "ETHUSDT"]
+import json
+
+with open("watchlist.json", "r") as file:
+    watchlist = json.load(file)
+
+SYMBOLS = [
+    token["symbol"]
+    for token in watchlist["tokens"]
+    if token["enabled"]
+]
 
 TIMEFRAMES = {
     "4H": "4h",
