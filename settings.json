@@ -3,7 +3,7 @@
   "conditions": {
     "4H": {
       "C1": {
-        "enabled": true,
+        "enabled": false,
         "threshold": 0.5
       },
       "C2": {
