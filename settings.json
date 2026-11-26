@@ -2,7 +2,7 @@
   "atr_length": 14,
   "conditions": {
     "4H": {
-      "C1": {"enabled": false, "threshold": 0.5},
+      "C1": {"enabled": true, "threshold": 0.5},
       "C2": {"enabled": false, "threshold": 3.0},
       "C3": {"enabled": false, "threshold": 0.5},
       "C4": {"enabled": false, "threshold": 0.5}
