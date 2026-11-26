@@ -5,6 +5,7 @@ from conditions import check_conditions
 from alert_manager import load_state, save_state, get_new_triggers
 
 BINANCE_URL = "https://data-api.binance.vision/api/v3/klines"
+PRICE_URL = "https://data-api.binance.vision/api/v3/ticker/price"
 
 TIMEFRAMES = {
     "4H": "4h",
@@ -24,6 +25,16 @@ def get_candles(symbol, interval):
     response.raise_for_status()
 
     return response.json()[:-1]
+
+
+def get_price(symbol):
+    response = requests.get(
+        PRICE_URL,
+        params={"symbol": symbol},
+        timeout=20
+    )
+    response.raise_for_status()
+    return float(response.json()["price"])
 
 
 def calculate_atr(candles, length):
@@ -61,7 +72,30 @@ def calculate_atr(candles, length):
     current_percent = current_atr / current_close * 100
     previous_percent = previous_atr / previous_close * 100
 
-    return current_percent, previous_percent, current_close
+    return current_percent, previous_percent
+
+
+def send_telegram(message):
+    import os
+
+    token = os.environ["TELEGRAM_BOT_TOKEN"]
+    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+
+    response = requests.post(
+        url,
+        data={
+            "chat_id": chat_id,
+            "text": message
+        },
+        timeout=20
+    )
+
+    response.raise_for_status()
+
+    if not response.json().get("ok"):
+        raise RuntimeError("Telegram message was not accepted")
 
 
 def main():
@@ -88,13 +122,12 @@ def main():
     for symbol in symbols:
         results = {}
         new_alerts = {}
-        price = None
 
         print(f"\n{symbol}")
 
         for label, interval in TIMEFRAMES.items():
             try:
-                current, previous, close = calculate_atr(
+                current, previous = calculate_atr(
                     get_candles(symbol, interval),
                     length
                 )
@@ -115,14 +148,10 @@ def main():
                 results[label] = current
                 new_alerts[label] = new_triggers
 
-                if label == "4H":
-                    price = close
-
                 condition_text = ",".join(triggered) if triggered else "-"
 
                 print(
                     f"{label}: {current:.4f}% "
-                    f"| Price=${close:,.4f} "
                     f"| Conditions: {condition_text}"
                 )
 
@@ -130,27 +159,50 @@ def main():
                 print(f"{label}: ERROR - {error}")
 
         if any(new_alerts.get(label) for label in TIMEFRAMES):
-            lines = [f"{symbol} | ${price:,.4f}"]
+            try:
+                price = get_price(symbol)
+                lines = [f"{symbol} | ${price:,.4f}"]
 
-            for label in TIMEFRAMES:
-                if label in results:
-                    conditions = new_alerts.get(label, [])
-                    condition_text = ",".join(conditions) if conditions else "-"
+                for label in TIMEFRAMES:
+                    if label in results:
+                        conditions = new_alerts.get(label, [])
+                        condition_text = ",".join(conditions) if conditions else "-"
 
-                    lines.append(
-                        f"{label}: {results[label]:.2f}% [{condition_text}]"
-                    )
+                        lines.append(
+                            f"{label}: {results[label]:.2f}% [{condition_text}]"
+                        )
 
-            alert_blocks.append("\n".join(lines))
+                alert_blocks.append("\n".join(lines))
 
-    save_state(state)
-
-    print("\nNEW ALERTS")
+            except Exception as error:
+                print(f"Price ERROR for {symbol}: {error}")
+                raise
 
     if alert_blocks:
-        print("\n\n".join(alert_blocks))
+        message = "ATR% SCANNER\n\n" + "\n\n".join(alert_blocks)
+
+        chunks = []
+        current_chunk = "ATR% SCANNER"
+
+        for block in alert_blocks:
+            if len(current_chunk) + len(block) + 2 > 3500:
+                chunks.append(current_chunk)
+                current_chunk = "ATR% SCANNER\n\n" + block
+            else:
+                current_chunk += "\n\n" + block
+
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        for chunk in chunks:
+            send_telegram(chunk)
+
+        print("\nTelegram alerts sent:", len(alert_blocks))
     else:
-        print("No new alerts")
+        print("\nNo new alerts")
+
+    save_state(state)
+    print("Alert state saved")
 
 
 if __name__ == "__main__":
