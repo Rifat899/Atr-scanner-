@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timezone
 
-BINANCE_URL = "https://api.binance.com/api/v3/klines"
+BINANCE_URL = "https://data-api.binance.vision/api/v3/klines"
 
 SYMBOLS = ["BTCUSDT", "ETHUSDT"]
 
