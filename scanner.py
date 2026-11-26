@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 from datetime import datetime, timezone
 from conditions import check_conditions
 from alert_manager import load_state, save_state, get_new_triggers
@@ -33,6 +34,7 @@ def get_price(symbol):
         params={"symbol": symbol},
         timeout=20
     )
+
     response.raise_for_status()
     return float(response.json()["price"])
 
@@ -76,8 +78,6 @@ def calculate_atr(candles, length):
 
 
 def send_telegram(message):
-    import os
-
     token = os.environ["TELEGRAM_BOT_TOKEN"]
     chat_id = os.environ["TELEGRAM_CHAT_ID"]
 
@@ -93,12 +93,12 @@ def send_telegram(message):
     )
 
     print("Telegram HTTP status:", response.status_code)
-print("Telegram response:", response.text)
+    print("Telegram response:", response.text)
 
-response.raise_for_status()
+    response.raise_for_status()
 
-if not response.json().get("ok"):
-    raise RuntimeError("Telegram message was not accepted")
+    if not response.json().get("ok"):
+        raise RuntimeError("Telegram message was not accepted")
 
 
 def main():
@@ -164,6 +164,7 @@ def main():
         if any(new_alerts.get(label) for label in TIMEFRAMES):
             try:
                 price = get_price(symbol)
+
                 lines = [f"{symbol} | ${price:,.4f}"]
 
                 for label in TIMEFRAMES:
@@ -182,8 +183,6 @@ def main():
                 raise
 
     if alert_blocks:
-        message = "ATR% SCANNER\n\n" + "\n\n".join(alert_blocks)
-
         chunks = []
         current_chunk = "ATR% SCANNER"
 
@@ -201,6 +200,7 @@ def main():
             send_telegram(chunk)
 
         print("\nTelegram alerts sent:", len(alert_blocks))
+
     else:
         print("\nNo new alerts")
 
