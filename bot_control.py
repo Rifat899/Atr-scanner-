@@ -143,6 +143,11 @@ def process_command(text, settings):
 
     if command == "/scan":
         return trigger_scan()
+    if command == "/price":
+    if len(parts) != 2:
+        return "Usage: /price BTC"
+
+    return get_price(parts[1])
 def get_price(symbol):
     symbol = symbol.upper()
 
