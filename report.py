@@ -1,12 +1,11 @@
+import os
 import requests
 import json
-from datetime import datetime, timezone
-from html import escape
 
 from scanner import get_candles, calculate_atr, get_price, format_price
 
-BOT_TOKEN = __import__("os").environ["TELEGRAM_BOT_TOKEN"]
-CHAT_ID = __import__("os").environ["TELEGRAM_CHAT_ID"]
+BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
@@ -16,8 +15,7 @@ def send_report(message):
         TELEGRAM_API,
         data={
             "chat_id": CHAT_ID,
-            "text": message,
-            "parse_mode": "HTML"
+            "text": message
         },
         timeout=30
     )
@@ -43,9 +41,11 @@ def main():
         if token["enabled"]
     ]
 
+    header = "TOKEN  PRICE       4H     1D     1W"
+
     rows = []
 
-    print("ATR MARKET DASHBOARD")
+    print("ATR MARKET REPORT")
 
     for symbol in tokens:
         try:
@@ -79,57 +79,36 @@ def main():
             else symbol
         )
 
-        rows.append(
-            f"{token_name:<6} "
-            f"{price:<12}"
-            f"{values['4H']:>6}"
-            f"{values['1D']:>7}"
-            f"{values['1W']:>7}"
+        row = (
+            f"{token_name:<5} "
+            f"{price:<11} "
+            f"{values['4H']:>5} "
+            f"{values['1D']:>5} "
+            f"{values['1W']:>5}"
         )
 
-    header = (
-        f"{'TOKEN':<6} "
-        f"{'PRICE':<12}"
-        f"{'4H':>6}"
-        f"{'1D':>7}"
-        f"{'1W':>7}"
-    )
-
-    title = (
-        "📊 ATR MARKET DASHBOARD\n"
-        "━━━━━━━━━━━━━━━━━━━━\n"
-        + datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC")
-    )
+        rows.append(row)
+        print(row)
 
     chunks = []
-    current_rows = []
+    current_rows = [header]
 
     for row in rows:
-        test_message = (
-            f"{title}\n\n"
-            f"{header}\n"
-            + "\n".join(current_rows + [row])
-        )
+        test_message = "\n".join(current_rows + [row])
 
-        if len(test_message) > 3500 and current_rows:
-            chunks.append(current_rows)
-            current_rows = [row]
+        if len(test_message) > 3500:
+            chunks.append("\n".join(current_rows))
+            current_rows = [header, row]
         else:
             current_rows.append(row)
 
     if current_rows:
-        chunks.append(current_rows)
+        chunks.append("\n".join(current_rows))
 
-    for chunk_rows in chunks:
-        report = (
-            f"{title}\n\n"
-            f"<pre>{escape(header)}\n"
-            f"{escape(chr(10).join(chunk_rows))}</pre>"
-        )
+    for chunk in chunks:
+        send_report(chunk)
 
-        send_report(report)
-
-    print("\nDashboard sent successfully.")
+    print("\nReport sent successfully.")
     print("Tokens scanned:", len(tokens))
 
 
