@@ -1,4 +1,3 @@
-import os
 import requests
 import json
 from datetime import datetime, timezone
@@ -6,8 +5,8 @@ from html import escape
 
 from scanner import get_candles, calculate_atr, get_price, format_price
 
-BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+BOT_TOKEN = __import__("os").environ["TELEGRAM_BOT_TOKEN"]
+CHAT_ID = __import__("os").environ["TELEGRAM_CHAT_ID"]
 
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
@@ -46,12 +45,11 @@ def main():
 
     rows = []
 
-    print("ATR MARKET SNAPSHOT")
-    print("Time:", datetime.now(timezone.utc).isoformat())
+    print("ATR MARKET DASHBOARD")
 
     for symbol in tokens:
         try:
-            price = format_price(get_price(symbol))
+            price = format_price(get_price(symbol)).replace("$", "")
         except Exception as error:
             print(f"{symbol} PRICE ERROR: {error}")
             price = "ERROR"
@@ -69,33 +67,38 @@ def main():
                     length
                 )
 
-                values[label] = f"{current:.4f}%"
+                values[label] = f"{current:.2f}"
 
             except Exception as error:
                 print(f"{symbol} {label} ERROR: {error}")
-                values[label] = "ERROR"
+                values[label] = "N/A"
 
-        token_name = symbol[:-4] if symbol.endswith("USDT") else symbol
+        token_name = (
+            symbol[:-4]
+            if symbol.endswith("USDT")
+            else symbol
+        )
 
         rows.append(
-            f"{token_name:<12} "
-            f"{price:>16} "
-            f"{values['4H']:>10} "
-            f"{values['1D']:>10} "
-            f"{values['1W']:>10}"
+            f"{token_name:<6} "
+            f"{price:<12}"
+            f"{values['4H']:>6}"
+            f"{values['1D']:>7}"
+            f"{values['1W']:>7}"
         )
 
     header = (
-        f"{'TOKEN':<12} "
-        f"{'PRICE':>16} "
-        f"{'4H ATR%':>10} "
-        f"{'1D ATR%':>10} "
-        f"{'1W ATR%':>10}"
+        f"{'TOKEN':<6} "
+        f"{'PRICE':<12}"
+        f"{'4H':>6}"
+        f"{'1D':>7}"
+        f"{'1W':>7}"
     )
 
     title = (
-        "ATR MARKET SNAPSHOT\n"
-        + datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        "📊 ATR MARKET DASHBOARD\n"
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        + datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC")
     )
 
     chunks = []
@@ -126,7 +129,7 @@ def main():
 
         send_report(report)
 
-    print("\nSnapshot sent successfully.")
+    print("\nDashboard sent successfully.")
     print("Tokens scanned:", len(tokens))
 
 
