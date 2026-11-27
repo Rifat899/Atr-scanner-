@@ -2,10 +2,18 @@ import os
 import json
 import requests
 
-GH_TOKEN = os.environ["GH_ACTIONS_TOKEN"]
-GITHUB_API = "https://api.github.com/repos/Rifat899/Atr-scanner-/actions/workflows/scanner-test.yml/dispatches"
+BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+GH_TOKEN = os.environ.get("GH_ACTIONS_TOKEN", "")
+
+MY_CHAT_ID = 1221378175
 
 API = f"https://api.telegram.org/bot{BOT_TOKEN}"
+
+GITHUB_API = (
+    "https://api.github.com/repos/"
+    "Rifat899/Atr-scanner-/"
+    "actions/workflows/scanner-test.yml/dispatches"
+)
 
 SETTINGS_FILE = "settings.json"
 OFFSET_FILE = "bot_update_offset.json"
@@ -20,10 +28,42 @@ def send_message(text):
         },
         timeout=20
     )
+
     response.raise_for_status()
 
     if not response.json().get("ok"):
         raise RuntimeError("Telegram message failed")
+
+
+def trigger_scan():
+    if not GH_TOKEN:
+        return "Scan failed: GitHub token is missing."
+
+    try:
+        response = requests.post(
+            GITHUB_API,
+            headers={
+                "Authorization": f"Bearer {GH_TOKEN}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28"
+            },
+            json={"ref": "main"},
+            timeout=20
+        )
+
+        if response.status_code == 204:
+            return (
+                "SCAN REQUESTED\n\n"
+                "GitHub Actions will start the ATR scanner."
+            )
+
+        return (
+            f"Scan request failed: HTTP {response.status_code}\n"
+            f"{response.text[:300]}"
+        )
+
+    except requests.RequestException as error:
+        return f"Scan request failed: {error}"
 
 
 def load_settings():
@@ -71,6 +111,7 @@ def show_settings(settings):
 def show_help():
     return (
         "ATR SCANNER COMMANDS\n\n"
+        "/scan - Run ATR scanner now\n"
         "/settings - Show all settings\n"
         "/help - Show commands\n\n"
         "ENABLE WITH THRESHOLD:\n"
@@ -78,7 +119,6 @@ def show_help():
         "/c2 1D on 5\n\n"
         "DISABLE:\n"
         "/c1 4H off\n\n"
-        "You can change the numbers freely.\n"
         "Conditions: C1, C2, C3, C4\n"
         "Timeframes: 4H, 1D, 1W"
     )
@@ -100,6 +140,9 @@ def process_command(text, settings):
 
     if command == "/settings":
         return show_settings(settings)
+
+    if command == "/scan":
+        return trigger_scan()
 
     if command not in ["/c1", "/c2", "/c3", "/c4"]:
         return "Unknown command. Send /help."
@@ -189,8 +232,9 @@ def main():
 
         offset = update_id + 1
 
+    save_offset(offset)
+
     if updates:
-        save_offset(offset)
         print("Processed updates:", len(updates))
     else:
         print("No new commands")
