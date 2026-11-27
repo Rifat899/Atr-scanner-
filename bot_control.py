@@ -2,8 +2,8 @@ import os
 import json
 import requests
 
-BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-MY_CHAT_ID = 1221378175
+GH_TOKEN = os.environ["GH_ACTIONS_TOKEN"]
+GITHUB_API = "https://api.github.com/repos/Rifat899/Atr-scanner-/actions/workflows/scanner-test.yml/dispatches"
 
 API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
