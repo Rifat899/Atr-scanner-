@@ -16,6 +16,12 @@ GITHUB_API = (
     "actions/workflows/scanner-test.yml/dispatches"
 )
 
+REPORT_GITHUB_API = (
+    "https://api.github.com/repos/"
+    "Rifat899/Atr-scanner-/"
+    "actions/workflows/report.yml/dispatches"
+)
+
 SETTINGS_FILE = "settings.json"
 OFFSET_FILE = "bot_update_offset.json"
 WATCHLIST_FILE = "watchlist.json"
@@ -38,13 +44,13 @@ def send_message(text):
         raise RuntimeError("Telegram message failed")
 
 
-def trigger_scan():
+def trigger_workflow(url, workflow_name):
     if not GH_TOKEN:
-        return "Scan failed: GitHub token is missing."
+        return "Failed: GitHub token is missing."
 
     try:
         response = requests.post(
-            GITHUB_API,
+            url,
             headers={
                 "Authorization": f"Bearer {GH_TOKEN}",
                 "Accept": "application/vnd.github+json",
@@ -56,17 +62,31 @@ def trigger_scan():
 
         if response.status_code == 204:
             return (
-                "SCAN REQUESTED\n\n"
-                "GitHub Actions will start the ATR scanner."
+                f"{workflow_name} REQUESTED\n\n"
+                "GitHub Actions will start the workflow."
             )
 
         return (
-            f"Scan request failed: HTTP {response.status_code}\n"
+            f"Request failed: HTTP {response.status_code}\n"
             f"{response.text[:300]}"
         )
 
     except requests.RequestException as error:
-        return f"Scan request failed: {error}"
+        return f"Request failed: {error}"
+
+
+def trigger_scan():
+    return trigger_workflow(
+        GITHUB_API,
+        "ATR SCAN"
+    )
+
+
+def trigger_report():
+    return trigger_workflow(
+        REPORT_GITHUB_API,
+        "ATR MARKET REPORT"
+    )
 
 
 def get_price(symbol):
@@ -246,6 +266,7 @@ def show_help():
     return (
         "ATR SCANNER COMMANDS\n\n"
         "/scan - Run ATR scanner now\n"
+        "/report - Send full ATR market report\n"
         "/price BTC - Get latest Binance price\n"
         "/settings - Show ATR settings\n"
         "/watchlist - Show watched tokens\n\n"
@@ -281,6 +302,9 @@ def process_command(text, settings):
 
     if command == "/scan":
         return trigger_scan()
+
+    if command == "/report":
+        return trigger_report()
 
     if command == "/price":
         if len(parts) != 2:
