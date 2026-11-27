@@ -138,8 +138,19 @@ def main():
     for symbol in symbols:
         results = {}
         new_alerts = {}
+        timeframe_errors = {}
 
         print(f"\n{symbol}")
+
+        try:
+            price = get_price(symbol)
+            price_text = format_price(price)
+        except Exception as error:
+            price = None
+            price_text = "Price unavailable"
+            print(f"PRICE ERROR: {error}")
+
+        print(f"PRICE: {price_text}")
 
         for label, interval in TIMEFRAMES.items():
             try:
@@ -172,28 +183,29 @@ def main():
                 )
 
             except Exception as error:
+                timeframe_errors[label] = str(error)
                 print(f"{label}: ERROR - {error}")
 
         if any(new_alerts.get(label) for label in TIMEFRAMES):
-            try:
-                price = get_price(symbol)
+            lines = [
+                f"{symbol} | {price_text}"
+            ]
 
-                lines = [f"{symbol} | {format_price(price)}"]
+            for label in TIMEFRAMES:
+                if label in results:
+                    conditions = new_alerts.get(label, [])
+                    condition_text = ",".join(conditions) if conditions else "-"
 
-                for label in TIMEFRAMES:
-                    if label in results:
-                        conditions = new_alerts.get(label, [])
-                        condition_text = ",".join(conditions) if conditions else "-"
+                    lines.append(
+                        f"{label}: {results[label]:.2f}% [{condition_text}]"
+                    )
 
-                        lines.append(
-                            f"{label}: {results[label]:.2f}% [{condition_text}]"
-                        )
+                elif label in timeframe_errors:
+                    lines.append(
+                        f"{label}: ERROR - {timeframe_errors[label]}"
+                    )
 
-                alert_blocks.append("\n".join(lines))
-
-            except Exception as error:
-                print(f"Price ERROR for {symbol}: {error}")
-                raise
+            alert_blocks.append("\n".join(lines))
 
     if alert_blocks:
         chunks = []
