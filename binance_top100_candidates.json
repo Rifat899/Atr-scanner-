@@ -4,335 +4,335 @@
     "name": "Bitcoin",
     "symbol": "BTC",
     "binance_symbol": "BTCUSDT",
-    "market_cap": 1232520391376
+    "market_cap": 1237665463830
   },
   {
     "rank": 2,
     "name": "Ethereum",
     "symbol": "ETH",
     "binance_symbol": "ETHUSDT",
-    "market_cap": 210314267849
+    "market_cap": 211343087003
   },
   {
     "rank": 4,
     "name": "BNB",
     "symbol": "BNB",
     "binance_symbol": "BNBUSDT",
-    "market_cap": 73701482781
+    "market_cap": 74024112251
   },
   {
     "rank": 6,
     "name": "XRP",
     "symbol": "XRP",
     "binance_symbol": "XRPUSDT",
-    "market_cap": 60873456883
+    "market_cap": 61252900192
   },
   {
     "rank": 7,
     "name": "Solana",
     "symbol": "SOL",
     "binance_symbol": "SOLUSDT",
-    "market_cap": 42826406688
+    "market_cap": 43145377129
   },
   {
     "rank": 9,
     "name": "TRON",
     "symbol": "TRX",
     "binance_symbol": "TRXUSDT",
-    "market_cap": 28957847075
+    "market_cap": 29016190592
   },
   {
     "rank": 10,
     "name": "Hyperliquid",
     "symbol": "HYPE",
     "binance_symbol": "HYPEUSDT",
-    "market_cap": 15416107413
+    "market_cap": 15715713942
   },
   {
     "rank": 11,
     "name": "Zcash",
     "symbol": "ZEC",
     "binance_symbol": "ZECUSDT",
-    "market_cap": 12609292702
+    "market_cap": 12846325334
   },
   {
     "rank": 12,
     "name": "Dogecoin",
     "symbol": "DOGE",
     "binance_symbol": "DOGEUSDT",
-    "market_cap": 9016266516
+    "market_cap": 9084369797
   },
   {
     "rank": 16,
     "name": "Chainlink",
     "symbol": "LINK",
     "binance_symbol": "LINKUSDT",
-    "market_cap": 7258425118
+    "market_cap": 7289175147
   },
   {
     "rank": 18,
     "name": "Cardano",
     "symbol": "ADA",
     "binance_symbol": "ADAUSDT",
-    "market_cap": 5663517371
+    "market_cap": 5698553036
   },
   {
     "rank": 20,
     "name": "Stellar",
     "symbol": "XLM",
     "binance_symbol": "XLMUSDT",
-    "market_cap": 4556235465
+    "market_cap": 4574858636
   },
   {
     "rank": 21,
     "name": "Bitcoin Cash",
     "symbol": "BCH",
     "binance_symbol": "BCHUSDT",
-    "market_cap": 4379137664
+    "market_cap": 4399936012
   },
   {
     "rank": 23,
     "name": "NEAR Protocol",
     "symbol": "NEAR",
     "binance_symbol": "NEARUSDT",
-    "market_cap": 4092127821
+    "market_cap": 4113466499
   },
   {
     "rank": 24,
     "name": "Litecoin",
     "symbol": "LTC",
     "binance_symbol": "LTCUSDT",
-    "market_cap": 3454644105
+    "market_cap": 3468713980
   },
   {
     "rank": 26,
     "name": "Avalanche",
     "symbol": "AVAX",
     "binance_symbol": "AVAXUSDT",
-    "market_cap": 2993247282
+    "market_cap": 3008153813
   },
   {
     "rank": 27,
     "name": "Uniswap",
     "symbol": "UNI",
     "binance_symbol": "UNIUSDT",
-    "market_cap": 2930016686
+    "market_cap": 2947411995
   },
   {
     "rank": 30,
     "name": "Sui",
     "symbol": "SUI",
     "binance_symbol": "SUIUSDT",
-    "market_cap": 2814745629
+    "market_cap": 2830073997
   },
   {
     "rank": 34,
     "name": "Hedera",
     "symbol": "HBAR",
     "binance_symbol": "HBARUSDT",
-    "market_cap": 2418912560
+    "market_cap": 2427920144
   },
   {
     "rank": 37,
     "name": "Quant",
     "symbol": "QNT",
     "binance_symbol": "QNTUSDT",
-    "market_cap": 2193906954
+    "market_cap": 2203588737
   },
   {
     "rank": 38,
     "name": "Bittensor",
     "symbol": "TAO",
     "binance_symbol": "TAOUSDT",
-    "market_cap": 2183759474
+    "market_cap": 2199098185
   },
   {
     "rank": 39,
     "name": "Shiba Inu",
     "symbol": "SHIB",
     "binance_symbol": "SHIBUSDT",
-    "market_cap": 2164965015
+    "market_cap": 2171693007
   },
   {
     "rank": 50,
     "name": "Pepe",
     "symbol": "PEPE",
     "binance_symbol": "PEPEUSDT",
-    "market_cap": 1506082522
+    "market_cap": 1518328233
   },
   {
     "rank": 52,
     "name": "Aave",
     "symbol": "AAVE",
     "binance_symbol": "AAVEUSDT",
-    "market_cap": 1484350854
+    "market_cap": 1493814348
   },
   {
     "rank": 54,
     "name": "Ondo",
     "symbol": "ONDO",
     "binance_symbol": "ONDOUSDT",
-    "market_cap": 1424889874
+    "market_cap": 1436520333
   },
   {
     "rank": 55,
     "name": "Ethena",
     "symbol": "ENA",
     "binance_symbol": "ENAUSDT",
-    "market_cap": 1396865506
+    "market_cap": 1410427933
   },
   {
     "rank": 56,
     "name": "World Liberty Financial",
     "symbol": "WLFI",
     "binance_symbol": "WLFIUSDT",
-    "market_cap": 1329924138
+    "market_cap": 1333889262
   },
   {
     "rank": 59,
     "name": "Aster",
     "symbol": "ASTER",
     "binance_symbol": "ASTERUSDT",
-    "market_cap": 1306808511
+    "market_cap": 1310967584
   },
   {
     "rank": 62,
     "name": "Polkadot",
     "symbol": "DOT",
     "binance_symbol": "DOTUSDT",
-    "market_cap": 1175149008
+    "market_cap": 1183372974
   },
   {
     "rank": 63,
     "name": "Morpho",
     "symbol": "MORPHO",
     "binance_symbol": "MORPHOUSDT",
-    "market_cap": 1166437608
+    "market_cap": 1177020956
   },
   {
     "rank": 64,
     "name": "Internet Computer",
     "symbol": "ICP",
     "binance_symbol": "ICPUSDT",
-    "market_cap": 1152454401
+    "market_cap": 1155305179
   },
   {
     "rank": 65,
-    "name": "JUST",
-    "symbol": "JST",
-    "binance_symbol": "JSTUSDT",
-    "market_cap": 1143532671
-  },
-  {
-    "rank": 66,
     "name": "Sky",
     "symbol": "SKY",
     "binance_symbol": "SKYUSDT",
-    "market_cap": 1132099324
+    "market_cap": 1147565837
+  },
+  {
+    "rank": 66,
+    "name": "JUST",
+    "symbol": "JST",
+    "binance_symbol": "JSTUSDT",
+    "market_cap": 1142629566
   },
   {
     "rank": 70,
     "name": "Ethereum Classic",
     "symbol": "ETC",
     "binance_symbol": "ETCUSDT",
-    "market_cap": 949603105
+    "market_cap": 952113709
   },
   {
     "rank": 71,
     "name": "Worldcoin",
     "symbol": "WLD",
     "binance_symbol": "WLDUSDT",
-    "market_cap": 943907499
+    "market_cap": 952484982
   },
   {
     "rank": 72,
     "name": "Pump.fun",
     "symbol": "PUMP",
     "binance_symbol": "PUMPUSDT",
-    "market_cap": 936347163
+    "market_cap": 948502938
   },
   {
     "rank": 75,
     "name": "POL (ex-MATIC)",
     "symbol": "POL",
     "binance_symbol": "POLUSDT",
-    "market_cap": 832552759
+    "market_cap": 836048129
   },
   {
     "rank": 76,
     "name": "Jupiter",
     "symbol": "JUP",
     "binance_symbol": "JUPUSDT",
-    "market_cap": 812450237
+    "market_cap": 823014472
   },
   {
     "rank": 77,
     "name": "Arbitrum",
     "symbol": "ARB",
     "binance_symbol": "ARBUSDT",
-    "market_cap": 811973322
+    "market_cap": 817520479
   },
   {
     "rank": 78,
     "name": "Midnight",
     "symbol": "NIGHT",
     "binance_symbol": "NIGHTUSDT",
-    "market_cap": 812252150
+    "market_cap": 812867657
   },
   {
-    "rank": 80,
+    "rank": 79,
     "name": "Render",
     "symbol": "RENDER",
     "binance_symbol": "RENDERUSDT",
-    "market_cap": 750688410
+    "market_cap": 755276526
   },
   {
     "rank": 81,
     "name": "Algorand",
     "symbol": "ALGO",
     "binance_symbol": "ALGOUSDT",
-    "market_cap": 749892235
+    "market_cap": 749926182
   },
   {
     "rank": 86,
     "name": "Cosmos Hub",
     "symbol": "ATOM",
     "binance_symbol": "ATOMUSDT",
-    "market_cap": 668447465
+    "market_cap": 670820141
   },
   {
-    "rank": 87,
+    "rank": 88,
     "name": "Injective",
     "symbol": "INJ",
     "binance_symbol": "INJUSDT",
-    "market_cap": 635564098
+    "market_cap": 638534640
   },
   {
     "rank": 89,
     "name": "NEXO",
     "symbol": "NEXO",
     "binance_symbol": "NEXOUSDT",
-    "market_cap": 631483249
+    "market_cap": 632888724
   },
   {
     "rank": 95,
     "name": "PancakeSwap",
     "symbol": "CAKE",
     "binance_symbol": "CAKEUSDT",
-    "market_cap": 502660539
+    "market_cap": 504896958
   },
   {
     "rank": 97,
     "name": "Stacks",
     "symbol": "STX",
     "binance_symbol": "STXUSDT",
-    "market_cap": 496592462
+    "market_cap": 499376301
   },
   {
     "rank": 100,
     "name": "Dash",
     "symbol": "DASH",
     "binance_symbol": "DASHUSDT",
-    "market_cap": 469741734
+    "market_cap": 472883779
   }
 ]
