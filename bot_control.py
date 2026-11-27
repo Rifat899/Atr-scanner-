@@ -112,6 +112,7 @@ def show_help():
     return (
         "ATR SCANNER COMMANDS\n\n"
         "/scan - Run ATR scanner now\n"
+        "/price BTC - Get latest Binance price\n"
         "/settings - Show all settings\n"
         "/help - Show commands\n\n"
         "ENABLE WITH THRESHOLD:\n"
