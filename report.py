@@ -33,15 +33,14 @@ def main():
     ]
 
     header = (
-        f"{'TOKEN':<5} | "
-        f"{'PRICE':>12}    "
-        f"{'4H':>6}    "
-        f"{'1D':>6}    "
-        f"{'1W':>6}"
+        f"{'TOKEN':<6}| "
+        f"{'PRICE':<11} "
+        f"{'4H':>7} "
+        f"{'1D':>8} "
+        f"{'1W':>8}"
     )
 
     separator = "-" * len(header)
-
     rows = []
 
     print("ATR DISCORD REPORT")
@@ -78,11 +77,11 @@ def main():
         )
 
         row = (
-            f"{token_name:<5} | "
-            f"{price:>12}    "
-            f"{values['4H']:>6}    "
-            f"{values['1D']:>6}    "
-            f"{values['1W']:>6}"
+            f"{token_name:<6}| "
+            f"{price:<11} "
+            f"{values['4H']:>7} "
+            f"{values['1D']:>8} "
+            f"{values['1W']:>8}"
         )
 
         rows.append(row)
