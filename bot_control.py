@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import requests
 
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -17,6 +18,11 @@ GITHUB_API = (
 
 SETTINGS_FILE = "settings.json"
 OFFSET_FILE = "bot_update_offset.json"
+WATCHLIST_FILE = "watchlist.json"
+
+BINANCE_PRICE_API = (
+    "https://data-api.binance.vision/api/v3/ticker/price"
+)
 
 
 def send_message(text):
@@ -69,11 +75,12 @@ def get_price(symbol):
     if not symbol.endswith("USDT"):
         symbol += "USDT"
 
-    url = "https://data-api.binance.vision/api/v3/ticker/price"
+    if not re.fullmatch(r"[A-Z0-9]+USDT", symbol):
+        return "Invalid token symbol."
 
     try:
         response = requests.get(
-            url,
+            BINANCE_PRICE_API,
             params={"symbol": symbol},
             timeout=15
         )
@@ -82,6 +89,7 @@ def get_price(symbol):
             return f"Price unavailable for {symbol}"
 
         data = response.json()
+
         return f"{symbol}: ${float(data['price']):,.8f}"
 
     except requests.RequestException:
@@ -111,6 +119,110 @@ def save_offset(offset):
         json.dump({"offset": offset}, file, indent=2)
 
 
+def load_watchlist():
+    with open(WATCHLIST_FILE, "r") as file:
+        return json.load(file)
+
+
+def save_watchlist(watchlist):
+    with open(WATCHLIST_FILE, "w") as file:
+        json.dump(watchlist, file, indent=2)
+
+
+def manage_watchlist(command, symbols):
+    watchlist = load_watchlist()
+    tokens = watchlist["tokens"]
+
+    results = []
+
+    for raw_symbol in symbols:
+        symbol = raw_symbol.upper()
+
+        if not re.fullmatch(r"[A-Z0-9]+", symbol):
+            results.append(f"{raw_symbol}: Invalid symbol")
+            continue
+
+        if not symbol.endswith("USDT"):
+            symbol += "USDT"
+
+        existing = next(
+            (token for token in tokens if token["symbol"] == symbol),
+            None
+        )
+
+        if command == "/add":
+            if existing:
+                results.append(f"{symbol}: Already in watchlist")
+                continue
+
+            try:
+                response = requests.get(
+                    BINANCE_PRICE_API,
+                    params={"symbol": symbol},
+                    timeout=15
+                )
+
+                if response.status_code != 200:
+                    results.append(
+                        f"{symbol}: No available Binance pair"
+                    )
+                    continue
+
+                response.raise_for_status()
+
+                tokens.append({
+                    "symbol": symbol,
+                    "enabled": True
+                })
+
+                results.append(f"{symbol}: Added and enabled")
+
+            except requests.RequestException:
+                results.append(
+                    f"{symbol}: Binance connection error"
+                )
+
+        elif command == "/remove":
+            if existing:
+                tokens.remove(existing)
+                results.append(f"{symbol}: Removed")
+            else:
+                results.append(f"{symbol}: Not found")
+
+        elif command == "/enable":
+            if existing:
+                existing["enabled"] = True
+                results.append(f"{symbol}: Enabled")
+            else:
+                results.append(f"{symbol}: Not found")
+
+        elif command == "/disable":
+            if existing:
+                existing["enabled"] = False
+                results.append(f"{symbol}: Disabled")
+            else:
+                results.append(f"{symbol}: Not found")
+
+    save_watchlist(watchlist)
+
+    return "\n".join(results)
+
+
+def show_watchlist():
+    watchlist = load_watchlist()
+
+    lines = ["ATR SCANNER WATCHLIST", ""]
+
+    if not watchlist["tokens"]:
+        return "Watchlist is empty."
+
+    for token in watchlist["tokens"]:
+        status = "ON" if token["enabled"] else "OFF"
+        lines.append(f"{token['symbol']} | {status}")
+
+    return "\n".join(lines)
+
+
 def show_settings(settings):
     lines = ["ATR SCANNER SETTINGS", ""]
 
@@ -135,14 +247,17 @@ def show_help():
         "ATR SCANNER COMMANDS\n\n"
         "/scan - Run ATR scanner now\n"
         "/price BTC - Get latest Binance price\n"
-        "/settings - Show all settings\n"
-        "/help - Show commands\n\n"
-        "ENABLE WITH THRESHOLD:\n"
+        "/settings - Show ATR settings\n"
+        "/watchlist - Show watched tokens\n\n"
+        "WATCHLIST COMMANDS:\n"
+        "/add BTC ETH SOL\n"
+        "/remove BTC ETH\n"
+        "/enable SOL XRP\n"
+        "/disable ADA DOGE\n\n"
+        "CONDITION COMMANDS:\n"
         "/c1 4H on 0.5\n"
-        "/c2 1D on 5\n\n"
-        "DISABLE:\n"
+        "/c2 1D on 5\n"
         "/c1 4H off\n\n"
-        "Conditions: C1, C2, C3, C4\n"
         "Timeframes: 4H, 1D, 1W"
     )
 
@@ -172,6 +287,15 @@ def process_command(text, settings):
             return "Usage: /price BTC"
 
         return get_price(parts[1])
+
+    if command == "/watchlist":
+        return show_watchlist()
+
+    if command in ["/add", "/remove", "/enable", "/disable"]:
+        if len(parts) < 2:
+            return f"Usage: {command} BTC ETH SOL"
+
+        return manage_watchlist(command, parts[1:])
 
     if command not in ["/c1", "/c2", "/c3", "/c4"]:
         return "Unknown command. Send /help."
