@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import math
 from datetime import datetime, timezone
 from conditions import check_conditions
 from alert_manager import load_state, save_state, get_new_triggers
@@ -37,6 +38,18 @@ def get_price(symbol):
 
     response.raise_for_status()
     return float(response.json()["price"])
+
+
+def format_price(price):
+    if price <= 0:
+        return f"${price:.4f}"
+
+    if price >= 1:
+        return f"${price:,.4f}".rstrip("0").rstrip(".")
+
+    decimals = max(4, min(12, -math.floor(math.log10(price)) + 2))
+
+    return f"${price:,.{decimals}f}"
 
 
 def calculate_atr(candles, length):
@@ -165,7 +178,7 @@ def main():
             try:
                 price = get_price(symbol)
 
-                lines = [f"{symbol} | ${price:,.4f}"]
+                lines = [f"{symbol} | {format_price(price)}"]
 
                 for label in TIMEFRAMES:
                     if label in results:
