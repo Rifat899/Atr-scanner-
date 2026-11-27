@@ -22,10 +22,7 @@ OFFSET_FILE = "bot_update_offset.json"
 def send_message(text):
     response = requests.post(
         f"{API}/sendMessage",
-        data={
-            "chat_id": MY_CHAT_ID,
-            "text": text
-        },
+        data={"chat_id": MY_CHAT_ID, "text": text},
         timeout=20
     )
 
@@ -64,6 +61,31 @@ def trigger_scan():
 
     except requests.RequestException as error:
         return f"Scan request failed: {error}"
+
+
+def get_price(symbol):
+    symbol = symbol.upper()
+
+    if not symbol.endswith("USDT"):
+        symbol += "USDT"
+
+    url = "https://data-api.binance.vision/api/v3/ticker/price"
+
+    try:
+        response = requests.get(
+            url,
+            params={"symbol": symbol},
+            timeout=15
+        )
+
+        if response.status_code != 200:
+            return f"Price unavailable for {symbol}"
+
+        data = response.json()
+        return f"{symbol}: ${float(data['price']):,.8f}"
+
+    except requests.RequestException:
+        return "Could not connect to Binance. Try again later."
 
 
 def load_settings():
@@ -144,31 +166,12 @@ def process_command(text, settings):
 
     if command == "/scan":
         return trigger_scan()
+
     if command == "/price":
-    if len(parts) != 2:
-        return "Usage: /price BTC"
+        if len(parts) != 2:
+            return "Usage: /price BTC"
 
-    return get_price(parts[1])
-def get_price(symbol):
-    symbol = symbol.upper()
-
-    if not symbol.endswith("USDT"):
-        symbol += "USDT"
-
-    url = "https://data-api.binance.vision/api/v3/ticker/price"
-
-    response = requests.get(
-        url,
-        params={"symbol": symbol},
-        timeout=15
-    )
-
-    if response.status_code != 200:
-        return f"Price unavailable for {symbol}"
-
-    data = response.json()
-
-    return f"{symbol}: ${float(data['price']):,.8f}"
+        return get_price(parts[1])
 
     if command not in ["/c1", "/c2", "/c3", "/c4"]:
         return "Unknown command. Send /help."
@@ -243,7 +246,6 @@ def main():
         message = update.get("message", {})
         chat = message.get("chat", {})
 
-        # Only accept commands from your private chat
         if (
             str(chat.get("id")) == str(MY_CHAT_ID)
             and chat.get("type") == "private"
