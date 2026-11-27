@@ -25,7 +25,7 @@ jobs:
         run: pip install requests
 
       - name: Run Telegram bot control
-                env:
+        env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           GH_ACTIONS_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }}
         run: python bot_control.py
