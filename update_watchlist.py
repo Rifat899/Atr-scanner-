@@ -8,6 +8,20 @@ BINANCE_API = "https://data-api.binance.vision/api/v3/exchangeInfo"
 
 OUTPUT_FILE = "binance_top100_candidates.json"
 
+EXCLUDED_SYMBOLS = {
+    "USDC",
+    "USDS",
+    "USDE",
+    "USD1",
+    "RLUSD",
+    "TUSD",
+    "BFUSD",
+    "U",
+    "XAUT",
+    "PAXG",
+    "GRAM"
+}
+
 
 def get_coingecko_top100():
     params = {
@@ -79,8 +93,12 @@ def main():
         name = coin["name"]
         rank = coin.get("market_cap_rank")
 
+        if symbol in EXCLUDED_SYMBOLS:
+            skipped.append(f"{name} ({symbol}): excluded asset")
+            continue
+
         if symbol_counts[symbol] > 1:
-            skipped.append(f"{name} ({symbol}): duplicate CoinGecko symbol")
+            skipped.append(f"{name} ({symbol}): duplicate symbol")
             continue
 
         binance_symbol = symbol + "USDT"
@@ -102,7 +120,7 @@ def main():
     with open(OUTPUT_FILE, "w") as file:
         json.dump(candidates, file, indent=2)
 
-    print("\nBINANCE TOP 100 CANDIDATES")
+    print("\nFINAL CANDIDATE LIST")
     print("--------------------------------")
 
     for coin in candidates:
@@ -112,8 +130,8 @@ def main():
         )
 
     print("--------------------------------")
-    print("Total candidates:", len(candidates))
-    print("Skipped:", len(skipped))
+    print("Total eligible tokens:", len(candidates))
+    print("Skipped tokens:", len(skipped))
     print("Saved to:", OUTPUT_FILE)
 
     if skipped:
