@@ -7,6 +7,190 @@
     {
       "symbol": "ETHUSDT",
       "enabled": true
+    },
+    {
+      "symbol": "BNBUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "TRXUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "HYPEUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ZECUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "XLMUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "BCHUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "NEARUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "LTCUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "UNIUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "SUIUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "HBARUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "QNTUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "TAOUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "SHIBUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ONDOUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ENAUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "WLFIUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ASTERUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "DOTUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "MORPHOUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ICPUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "JSTUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "SKYUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ETCUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "WLDUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "PUMPUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "POLUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "JUPUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ARBUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "NIGHTUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "RENDERUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ALGOUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "INJUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "NEXOUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "CAKEUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "STXUSDT",
+      "enabled": true
+    },
+    {
+      "symbol": "DASHUSDT",
+      "enabled": true
     }
   ]
 }
