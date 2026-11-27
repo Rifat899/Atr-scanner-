@@ -1,4 +1,4 @@
-name: Update Crypto Watchlist
+name: Update Binance Top 100 Candidates
 
 on:
   workflow_dispatch:
@@ -22,13 +22,14 @@ jobs:
       - name: Install requirements
         run: pip install requests
 
-      - name: Update watchlist
+      - name: Build Binance candidate list
         run: python update_watchlist.py
 
-      - name: Save updated watchlist
+      - name: Save candidate list
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add watchlist.json
-          git diff --cached --quiet || git commit -m "Update crypto watchlist"
+          git add binance_top100_candidates.json
+          git diff --cached --quiet || git commit -m "Update Binance top 100 candidates"
+          git pull --rebase origin main
           git push
