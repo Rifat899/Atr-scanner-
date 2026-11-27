@@ -1,87 +1,126 @@
 import json
+import time
 import requests
 from collections import Counter
 
-CMC_URL = "https://pro-api.coinmarketcap.com/public-api/v3/cryptocurrency/listings/latest"
-BINANCE_URL = "https://data-api.binance.vision/api/v3/exchangeInfo"
+COINGECKO_API = "https://api.coingecko.com/api/v3/coins/markets"
+BINANCE_API = "https://data-api.binance.vision/api/v3/exchangeInfo"
 
-# Get CMC top 100
-params = {
-    "start": 1,
-    "limit": 100,
-    "convert": "USD"
-}
+OUTPUT_FILE = "binance_top100_candidates.json"
 
-cmc_response = requests.get(CMC_URL, params=params, timeout=20)
-cmc_response.raise_for_status()
-coins = cmc_response.json()["data"]
 
-# Get Binance spot trading pairs
-binance_response = requests.get(BINANCE_URL, timeout=30)
-binance_response.raise_for_status()
-exchange_info = binance_response.json()
+def get_coingecko_top100():
+    params = {
+        "vs_currency": "usd",
+        "order": "market_cap_desc",
+        "per_page": 100,
+        "page": 1,
+        "sparkline": "false"
+    }
 
-binance_pairs = {
-    item["baseAsset"]
-    for item in exchange_info["symbols"]
-    if item["status"] == "TRADING"
-    and item["quoteAsset"] == "USDT"
-    and item.get("isSpotTradingAllowed", False)
-}
+    headers = {
+        "User-Agent": "ATR-Scanner/1.0"
+    }
 
-# Read existing watchlist
-with open("watchlist.json", "r") as file:
-    watchlist = json.load(file)
+    for attempt in range(3):
+        response = requests.get(
+            COINGECKO_API,
+            params=params,
+            headers=headers,
+            timeout=30
+        )
 
-tokens = watchlist["tokens"]
+        if response.status_code == 429:
+            print("CoinGecko rate limit reached. Retrying...")
+            time.sleep(15)
+            continue
 
-existing_symbols = {
-    token["symbol"] for token in tokens
-}
+        response.raise_for_status()
+        return response.json()
 
-# Identify duplicate CMC symbols
-symbol_counts = Counter(coin["symbol"] for coin in coins)
+    raise RuntimeError("CoinGecko rate limit. Please try again later.")
 
-added = []
-skipped = []
 
-# Add new matching tokens
-for coin in coins:
-    symbol = coin["symbol"]
+def get_binance_spot_pairs():
+    response = requests.get(BINANCE_API, timeout=30)
+    response.raise_for_status()
 
-    if symbol_counts[symbol] > 1:
-        skipped.append(symbol + " (ambiguous)")
-        continue
+    data = response.json()
+    pairs = set()
 
-    if symbol not in binance_pairs:
-        continue
+    for item in data["symbols"]:
+        if (
+            item.get("status") == "TRADING"
+            and item.get("isSpotTradingAllowed") is True
+            and item.get("quoteAsset") == "USDT"
+        ):
+            pairs.add(item["symbol"])
 
-    if symbol in existing_symbols:
-        continue
+    return pairs
 
-    tokens.append({
-        "symbol": symbol,
-        "enabled": True,
-        "name": coin["name"],
-        "cmc_rank": coin["cmc_rank"]
-    })
 
-    existing_symbols.add(symbol)
-    added.append(symbol)
+def main():
+    print("Getting CoinGecko top 100...")
+    coins = get_coingecko_top100()
 
-# Save watchlist
-with open("watchlist.json", "w") as file:
-    json.dump(watchlist, file, indent=2)
+    print("Getting active Binance USDT spot pairs...")
+    binance_pairs = get_binance_spot_pairs()
 
-print("WATCHLIST UPDATE COMPLETE")
-print("New tokens added:", len(added))
-print("Total tokens:", len(tokens))
-print("Existing tokens preserved")
+    symbol_counts = Counter(
+        coin["symbol"].upper()
+        for coin in coins
+    )
 
-print("\nNEW TOKENS")
-for symbol in added:
-    print(symbol)
+    candidates = []
+    skipped = []
 
-print("\nSKIPPED AMBIGUOUS TOKENS")
-for symbol in skipped:
-    print(symbol)
+    for coin in coins:
+        symbol = coin["symbol"].upper()
+        name = coin["name"]
+        rank = coin.get("market_cap_rank")
+
+        if symbol_counts[symbol] > 1:
+            skipped.append(f"{name} ({symbol}): duplicate CoinGecko symbol")
+            continue
+
+        binance_symbol = symbol + "USDT"
+
+        if binance_symbol not in binance_pairs:
+            skipped.append(f"{name} ({symbol}): no active Binance USDT pair")
+            continue
+
+        candidates.append({
+            "rank": rank,
+            "name": name,
+            "symbol": symbol,
+            "binance_symbol": binance_symbol,
+            "market_cap": coin.get("market_cap")
+        })
+
+    candidates.sort(key=lambda item: item["rank"] or 9999)
+
+    with open(OUTPUT_FILE, "w") as file:
+        json.dump(candidates, file, indent=2)
+
+    print("\nBINANCE TOP 100 CANDIDATES")
+    print("--------------------------------")
+
+    for coin in candidates:
+        print(
+            f"#{coin['rank']} "
+            f"{coin['name']} | {coin['binance_symbol']}"
+        )
+
+    print("--------------------------------")
+    print("Total candidates:", len(candidates))
+    print("Skipped:", len(skipped))
+    print("Saved to:", OUTPUT_FILE)
+
+    if skipped:
+        print("\nSKIPPED TOKENS")
+        for item in skipped:
+            print(item)
+
+
+if __name__ == "__main__":
+    main()
