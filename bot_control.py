@@ -143,6 +143,26 @@ def process_command(text, settings):
 
     if command == "/scan":
         return trigger_scan()
+def get_price(symbol):
+    symbol = symbol.upper()
+
+    if not symbol.endswith("USDT"):
+        symbol += "USDT"
+
+    url = "https://data-api.binance.vision/api/v3/ticker/price"
+
+    response = requests.get(
+        url,
+        params={"symbol": symbol},
+        timeout=15
+    )
+
+    if response.status_code != 200:
+        return f"Price unavailable for {symbol}"
+
+    data = response.json()
+
+    return f"{symbol}: ${float(data['price']):,.8f}"
 
     if command not in ["/c1", "/c2", "/c3", "/c4"]:
         return "Unknown command. Send /help."
