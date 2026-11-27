@@ -4,26 +4,17 @@ import json
 
 from scanner import get_candles, calculate_atr, get_price, format_price
 
-BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-
-TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+DISCORD_WEBHOOK = os.environ["DISCORD_WEBHOOK_URL"]
 
 
 def send_report(message):
     response = requests.post(
-        TELEGRAM_API,
-        data={
-            "chat_id": CHAT_ID,
-            "text": message
-        },
+        DISCORD_WEBHOOK,
+        json={"content": message},
         timeout=30
     )
 
     response.raise_for_status()
-
-    if not response.json().get("ok"):
-        raise RuntimeError("Telegram report was not accepted")
 
 
 def main():
@@ -41,11 +32,19 @@ def main():
         if token["enabled"]
     ]
 
-    header = "TOKEN  PRICE       4H     1D     1W"
+    header = (
+        f"{'TOKEN':<5} | "
+        f"{'PRICE':>12}    "
+        f"{'4H':>6}    "
+        f"{'1D':>6}    "
+        f"{'1W':>6}"
+    )
+
+    separator = "-" * len(header)
 
     rows = []
 
-    print("ATR MARKET REPORT")
+    print("ATR DISCORD REPORT")
 
     for symbol in tokens:
         try:
@@ -66,7 +65,6 @@ def main():
                     get_candles(symbol, interval),
                     length
                 )
-
                 values[label] = f"{current:.2f}"
 
             except Exception as error:
@@ -80,35 +78,44 @@ def main():
         )
 
         row = (
-            f"{token_name:<5} "
-            f"{price:<11} "
-            f"{values['4H']:>5} "
-            f"{values['1D']:>5} "
-            f"{values['1W']:>5}"
+            f"{token_name:<5} | "
+            f"{price:>12}    "
+            f"{values['4H']:>6}    "
+            f"{values['1D']:>6}    "
+            f"{values['1W']:>6}"
         )
 
         rows.append(row)
         print(row)
 
     chunks = []
-    current_rows = [header]
+    current_rows = []
 
     for row in rows:
-        test_message = "\n".join(current_rows + [row])
+        content = "\n".join(
+            [header, separator] + current_rows + [row]
+        )
+        test_message = f"```\n{content}\n```"
 
-        if len(test_message) > 3500:
-            chunks.append("\n".join(current_rows))
-            current_rows = [header, row]
+        if len(test_message) > 1900 and current_rows:
+            content = "\n".join(
+                [header, separator] + current_rows
+            )
+            chunks.append(f"```\n{content}\n```")
+            current_rows = [row]
         else:
             current_rows.append(row)
 
     if current_rows:
-        chunks.append("\n".join(current_rows))
+        content = "\n".join(
+            [header, separator] + current_rows
+        )
+        chunks.append(f"```\n{content}\n```")
 
     for chunk in chunks:
         send_report(chunk)
 
-    print("\nReport sent successfully.")
+    print("\nDiscord report sent successfully.")
     print("Tokens scanned:", len(tokens))
 
 
